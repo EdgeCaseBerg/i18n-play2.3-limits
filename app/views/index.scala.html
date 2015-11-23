@@ -1,0 +1,24 @@
+@(msg: String, langInHeader: String)(implicit lang: play.api.i18n.Lang)
+<HTML>
+	<HEAD>
+		<TITLE>Play i18n Limitations</TITLE>
+	</HEAD>
+	<BODY>
+		<TABLE>
+			<THEAD>
+				<TR>
+					<TH>Language in header<TH>
+					<TH>Message</TH>
+					<TH>Play Implicit Lang</TH>
+				</TR>
+			</THEAD>
+			<TBODY>
+				<TR>
+					<TD>@langInHeader</TD>
+					<TD>@msg</TD>
+					<TD>@{lang.code}</TD>
+				</TR>
+			</TBODY>
+		</TABLE>
+	</BODY>
+</HTML>

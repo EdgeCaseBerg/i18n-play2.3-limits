@@ -1,0 +1,4 @@
+GET    /    			@controllers.PlayTest.index
+GET    /any				@controllers.PlayTest.supportAny
+
+GET /assets/*file controllers.Assets.at(path="/public", file)
