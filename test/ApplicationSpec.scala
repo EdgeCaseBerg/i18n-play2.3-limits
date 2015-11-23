@@ -72,5 +72,18 @@ class ApplicationSpec extends Specification {
         contentAsString(home) must contain ("<TD>de-DE</TD>")
     	}
     }
+
+    "render the index page in fr on /any" in {
+    	running(FakeApplication()) {
+    		val langHeader = "fr-ca,fr;q=0.8,en-us;q=0.1"
+    		val home = route(FakeRequest(GET, "/any").withHeaders( ("Accept-Language",langHeader))).get
+        
+        status(home) must equalTo(OK)
+        contentType(home) must beSome.which(_ == "text/html")
+        contentAsString(home) must contain (s"<TD>$langHeader</TD>")
+        contentAsString(home) must contain ("<TD>Bonjour</TD>")
+        contentAsString(home) must contain ("<TD>fr-CA</TD>") //note we use first q=1 val of french and play doesn't mind and uses messages.fr
+    	}
+    }
   }
 }
