@@ -60,7 +60,7 @@ class ApplicationSpec extends Specification {
     	}
     }
 
-    "attempt to support an unsupported language in /any but default to fallback" in {
+    "attempt to support an unsupported language in /any but default to fallback from messages" in {
     	running(FakeApplication()) {
     		val langHeader = "de-DE,de;q=0.8,en;q=0.1"
     		val home = route(FakeRequest(GET, "/any").withHeaders( ("Accept-Language",langHeader))).get
