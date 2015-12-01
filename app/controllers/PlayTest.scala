@@ -33,5 +33,40 @@ class PlayTest extends Controller {
     val msg = Messages("index.msg")
     Ok(views.html.index(msg, langHeader))
   }
+}
 
+class AnyLangSupportedController extends AnyLangController {
+
+  def showLang(implicit lang: Lang) : String ={
+    lang.toString
+  }
+
+  def ping = Action { implicit request =>
+    Ok(showLang)
+  }
+}
+
+trait AnyLangController extends Controller {
+
+  def isDoubleNumber(s: String): Boolean = (allCatch opt s.toDouble).isDefined
+
+  def getStringQVal(s: String) =  s.replace("q=","")
+
+  override implicit def request2lang(implicit request: RequestHeader) : Lang = {
+    play.api.Play.maybeApplication.map { implicit app =>
+      val langHeader = request.headers.get(HeaderNames.ACCEPT_LANGUAGE).getOrElse(play.api.i18n.Lang.defaultLang.toString)
+      val maybeLangFromCookie = request.cookies.get(Play.langCookieName).flatMap(c => Lang.get(c.value))
+
+      maybeLangFromCookie.getOrElse(
+        Lang(langHeader.split(",").map{ value => 
+          Option(value.split(";").toList match {
+            case tag :: Nil => (tag,1.0)
+            case tag :: qVal :: Nil if isDoubleNumber(getStringQVal(qVal))  => (tag, getStringQVal(qVal).toDouble)
+            case _ => null
+          })
+        }.filter(_.isDefined).map(_.get).sortWith(_._2 > _._2).head._1.toString
+        )
+      )
+    }.getOrElse(play.api.i18n.Lang.defaultLang)
+  }
 }

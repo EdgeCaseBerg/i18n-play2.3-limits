@@ -98,5 +98,27 @@ class ApplicationSpec extends Specification {
         contentAsString(home) must contain ("<TD>en-US</TD>") //note we use first q=1 val of french and play doesn't mind and uses messages.fr
     	}
     }
+
+    "render the language it's passed to an AnyLangController" in {
+        running(FakeApplication()) {
+            val langHeader = "fr-ca;q=0.3,fr;q=0.2,en-us;q=0.5"
+            val home = route(FakeRequest(GET, "/support").withHeaders( ("Accept-Language",langHeader))).get
+        
+            status(home) must equalTo(OK)
+            contentType(home) must beSome.which(_ == "text/plain")
+            contentAsString(home) must contain ("Lang(en,us)")
+        }
+    }
+
+    "render the language it's passed even if not in application.conf" in {
+        running(FakeApplication()) {
+            val langHeader = "fr-ca;q=0.3,fr;q=0.2,en-us;q=0.5,de;"
+            val home = route(FakeRequest(GET, "/support").withHeaders( ("Accept-Language",langHeader))).get
+        
+            status(home) must equalTo(OK)
+            contentType(home) must beSome.which(_ == "text/plain")
+            contentAsString(home) must contain ("Lang(de,)")
+        }   
+    }
   }
 }
