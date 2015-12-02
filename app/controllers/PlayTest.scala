@@ -20,13 +20,14 @@ class PlayTest extends Controller {
 
   def rfc2616ParseHeader(headerString: String): Lang = {
     val parsedLanguagesAndQvalues = headerString.split(",").map { value =>
-      Option(value.trim.split(";").toList match {
+      val possibleTag = value.trim.split(";").toList match {
         case tag :: Nil =>
           /* Each language-range MAY be given an associated quality value which represents an estimate of the user's preference for the languages specified by that range. The quality value defaults to "q=1". */
           (tag.trim, 1.0)
         case tag :: qVal :: Nil if isDoubleNumber(getStringQVal(qVal)) => (tag.trim, getStringQVal(qVal).toDouble)
         case _ => null
-      })
+      }
+      Option(possibleTag)
     }
 
     val languageCode = parsedLanguagesAndQvalues.filter(_.isDefined) //remove any unparseable values
@@ -64,15 +65,16 @@ trait AnyLangController extends Controller {
 
   def getStringQVal(s: String) =  s.replace("q=","")
 
-    def rfc2616ParseHeader(headerString: String): Lang = {
+  def rfc2616ParseHeader(headerString: String): Lang = {
     val parsedLanguagesAndQvalues = headerString.split(",").map { value =>
-      Option(value.trim.split(";").toList match {
+      val possibleTag = value.trim.split(";").toList match {
         case tag :: Nil =>
           /* Each language-range MAY be given an associated quality value which represents an estimate of the user's preference for the languages specified by that range. The quality value defaults to "q=1". */
           (tag.trim, 1.0)
         case tag :: qVal :: Nil if isDoubleNumber(getStringQVal(qVal)) => (tag.trim, getStringQVal(qVal).toDouble)
         case _ => null
-      })
+      }
+      Option(possibleTag)
     }
 
     val languageCode = parsedLanguagesAndQvalues.filter(_.isDefined) //remove any unparseable values

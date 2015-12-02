@@ -4,6 +4,9 @@ import org.specs2.mutable._
 
 import play.api.test._
 import play.api.test.Helpers._
+import play.api.i18n.Lang
+
+import controllers.AnyLangController
 
 class ApplicationSpec extends Specification {
 
@@ -119,6 +122,38 @@ class ApplicationSpec extends Specification {
             contentType(home) must beSome.which(_ == "text/plain")
             contentAsString(home) must contain ("Lang(de,)")
         }   
+    }
+
+    object FakeController extends AnyLangController
+
+    "parse a RFC 2616 compliant header with one language" in {
+        val expectedLang = Lang("da", "")
+        val header = "da, en-gb;q=0.8, en;q=0.7"
+        FakeController.rfc2616ParseHeader(header) must equalTo(expectedLang) 
+    }
+
+    "parse a RFC 2616 compliant header with multiple languages" in {
+        val expectedLang = Lang("en", "gb")
+        val header = "da;q=0.1, en-gb;q=0.8, en;q=0.7"
+        FakeController.rfc2616ParseHeader(header) must equalTo(expectedLang) 
+    }
+
+    "parse a RFC 2616 compliant header with no q values" in {
+        val expectedLang = Lang("de", "")
+        val header = "de,da, en-gb, en"
+        FakeController.rfc2616ParseHeader(header) must equalTo(expectedLang) 
+    }
+
+    "parse a RFC 2616 compliant header with all q values specified" in {
+        val expectedLang = Lang("fr", "ca")
+        val header = "da;q=0.1, en-gb;q=0.3,fr-ca;q=0.9, en;q=0.5"
+        FakeController.rfc2616ParseHeader(header) must equalTo(expectedLang) 
+    }
+
+    "return a default if an empty header is sent" in {
+        val expectedLang = play.api.i18n.Lang.defaultLang
+        val header = ""
+        FakeController.rfc2616ParseHeader(header) must equalTo(expectedLang) 
     }
   }
 }
